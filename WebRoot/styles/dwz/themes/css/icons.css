@@ -1,0 +1,44 @@
+.addIcon{
+	width: 16px;
+	height: 16px; 
+	margin-left:5px;
+	display: inline-block;
+	display: -moz-inline-stack;
+	zoom: 1;
+	*display: inline;
+	cursor: pointer;
+	background: url(images/icons/add.png) no-repeat;
+}
+.deleteIcon{
+	width: 16px;
+	height: 16px; 
+	margin-left:5px;
+	display: inline-block;
+	display: -moz-inline-stack;
+	zoom: 1;
+	*display: inline;
+	cursor: pointer;
+	background: url(images/icons/delete.png) no-repeat;
+}
+.zoomInIcon{
+	width: 16px;
+	height: 16px; 
+	margin-left:5px;
+	display: inline-block;
+	display: -moz-inline-stack;
+	zoom: 1;
+	*display: inline;
+	cursor: pointer;
+	background: url(images/icons/zoom_in.png) no-repeat;
+}
+.zoomOutIcon{
+	width: 16px;
+	height: 16px; 
+	margin-left:5px;
+	display: inline-block;
+	display: -moz-inline-stack;
+	zoom: 1;
+	*display: inline;
+	cursor: pointer;
+	background: url(images/icons/zoom_out.png) no-repeat;
+}

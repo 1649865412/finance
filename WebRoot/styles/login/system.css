@@ -1,0 +1,90 @@
+@charset "utf-8";
+/* 清除内外边距 */
+body, h1, h2, h3, h4, h5, h6, hr, p, blockquote,dl, dt, dd, ul, ol, li, pre, fieldset, lengend, button, input, textarea, th, td,form {margin: 0;padding: 0;}
+/* 设置默认字体 */
+body,button, input, select, textarea {font: 12px/1 Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;}
+address, cite, dfn, em, var { font-style: normal; } /* 将斜体扶正 */
+code, kbd, pre, samp, tt { font-family:Arial, Helvetica, sans-serif, Courier, monospace; } /* 统一等宽字体 */
+/* 重置列表元素 */
+ul, ol {list-style: none;}
+/* 重置文本格式元素 */
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+abbr[title], acronym[title] { /* 注：1.ie6 不支持 abbr; 2.这里用了属性选择符，ie6 下无效果 */border-bottom: 1px dotted;cursor: help;}
+q:before, q:after { content: ''; }
+/* 重置表单元素 */
+legend {color:#000;} /* for ie6 */
+fieldset, img {border:none; } /* img 搭车：让链接里的 img 无边框 */
+/* 注：optgroup 无法扶正 */
+button, input, select, textarea {font-size: 100%; /* 使得表单元素在 ie 下能继承字体大小 */}
+/* 重置表格元素 */
+table {border-collapse: collapse; border-spacing:0;}
+/* 重置 hr */
+hr {border: none;height: 1px;}
+/* 让非ie浏览器默认也显示垂直滚动条，防止因滚动条引起的闪烁 */
+html { overflow-y: scroll; }
+/*浮动相关*/
+.fl{float:left;}
+.fr{float:right;}
+.clearb{clear:both;}
+.inputbg{height:25px; line-height:25px; background:url(images/input_bg.jpg) repeat-x; border:1px #dcdcdc solid; margin-bottom:15px; padding-left:5px;}
+.w180{width:180px;}
+.w280{width:280px;}
+/*报错相关*/
+.alert_right{height:27px; line-height:27px; font-size:12px; padding-left:30px; background:url(images/icon_right.jpg) no-repeat 10px center; color:#666;}
+.alert_wrong{height:27px; line-height:27px; font-size:12px; padding-left:30px; background:url(images/icon_wrong.jpg) no-repeat 10px center; color:#f00;}
+.alert_jg{height:27px; line-height:27px; font-size:12px; padding-left:30px; background:url(images/icon_jg.jpg) no-repeat 10px center; color:#666;}
+
+/*-------------------------login and register-------------------------------*/
+.logintopbg{width:100%; height:283px; background:url(images/login_top.jpg) repeat-x;}
+.login{width:770px; margin:10px auto;}
+.login .leftbar{width:330px; height:114px; background:url(images/system_name.jpg) no-repeat; margin-top:80px;}
+.login .rightbar{width:410px; background:url(images/mid-line.jpg) no-repeat 6px center; padding-left:30px;}
+.login .rightbar h2{width:56px; height:28px; background:url(images/icon_login.jpg) no-repeat; padding-bottom:30px;}
+.login .rightbar h3{width:auto; height:28px;background:url(images/icon_reg.jpg) no-repeat; padding-bottom:20px;}
+.login .rightbar h4{width:auto; height:28px;background:url(images/icon_pwd.jpg) no-repeat; padding-bottom:20px;}
+.login .rightbar .inputtxt{width:52px; font-weight:bold; color:#000; height:27px; line-height:27px; font-size:14px;}
+.login .rightbar .inputtxt2{font-size:12px; color:#999; margin-top:50px; line-height:20px;}
+.btn{height:25px; line-height:23px; background:url(images/btn_bg.jpg) repeat-x; border:1px #4b95c6 solid; padding:1px 20px; margin-right:10px;}
+.loginfooter{width:100%; padding:25px 0; margin-top:100px; text-align:center; font-size:12px; color:#999797; border-top:1px #f2f2f2 solid;}
+.login a:link,a:visited{font-size:12px; color:#666; text-decoration:none;}
+.login a:hover{font-size:12px; color:#114E91; text-decoration:underline;}
+
+
+/*-------------------------list pages-------------------------------*/
+.listtop{width:960px; margin:0 auto; clear:both; overflow:hidden; clear:both;}
+.listtop a:link,.listtop a:visited{font-weight:bold; color:#000; padding-left:10px;}
+.listtop a:hover{font-weight:bold; color:#000; text-decoration:underline; padding-left:10px;}
+/*------------nav--------------*/
+.listnav{height:46px; background:url(images/nav_bg.jpg) repeat-x left bottom; margin-top:15px;}
+.listnav ul{height:46px; width:960px; margin:0 auto;}
+.listnav ul li{width:79px; height:46px; line-height:38px; text-align:center; color:#fff; background:url(images/nav_on.jpg) no-repeat; margin:8px 15px 0 0; float:left;}
+.listnav ul li.on{width:98px; height:46px; line-height:46px; text-align:center; color:#000; font-weight:bold; background:url(images/nav_active.png) no-repeat; margin-top:0; margin-left:-3px;}
+/*----------content template-----------*/
+.listcontent{width:908px; padding:0 25px; border:1px #c7e7fa solid; margin:0 auto; background:#fff; min-height:350px; _height:350px; margin-top:-8px;}
+.tablestyle{margin:15px 0; border:1px #eee solid;}
+.tablestyle td{line-height:40px; border-bottom:1px #eee solid; border-right:1px #eee solid; padding-left:10px;}
+.tablestyle th{line-height:40px; border-bottom:1px #eee solid; border-right:1px #eee solid; padding-left:10px; font-weight:bold; background:#F7FCFF; text-align:left;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

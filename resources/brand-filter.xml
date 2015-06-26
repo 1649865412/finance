@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<brands>
+	<!-- 
+		id ： 与爬虫数据库brands表ID对应，数据清洗模版会使用该字段,没有不配置即可
+		name: 品牌名称 与爬虫数据库brands表name_chn对应
+		organizationId：所属组织编号与base_organization表ID对应，用于区分不同用户，查询不同数据使用。
+		organizationId：所属组织名称base_organization表name对应
+	 -->
+	<brand id="1" brandName="欧莱雅" organizationId="7" organizationName="欧莱雅" />
+	<brand id="" brandName="" organizationId="8" organizationName="曼秀雷敦" />
+	
+</brands>

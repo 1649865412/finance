@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+	<comment>Builder SQL</comment>
+	<!-- 测试SQL -->
+	<entry key="builder.alltable">
+	SELECT  tablename  FROM  pg_tables WHERE   tablename   NOT   LIKE   'pg%'  
+	AND tablename NOT LIKE 'sql_%'
+	{and tableowner=#ower#}
+	 ORDER   BY   tablename
+	</entry>	
+	
+	<entry key="builder.page">
+	select *  from base_role where {name like '%#name#'}  {and id in (#array#)}   ORDER   BY  id desc
+	</entry>
+	
+	
+	
+</properties>

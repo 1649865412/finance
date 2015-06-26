@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd"
+	default-lazy-init="false">
+	
+
+	<bean id="cleanImgAndPPT" class="com.innshine.reportExport.util.CleanImgTaskWork" />
+	
+	<bean id="cleanImgAndPPTCleaningJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="cleanImgAndPPT" />
+		<property name="targetMethod" value="doTask" />
+	</bean>
+	
+	
+	<!-- 定义触发时间 -->
+	<bean id="cleanImgAndPPTDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="cleanImgAndPPTCleaningJobTask" />
+		<property name="cronExpression">
+			<!-- 每隔10分钟调用一次 -->
+			<!-- <value>0 0/10 * * * ?</value> -->
+			<!-- 
+				 是否必填	 允许填写的值	允许的通配符 
+				 1	 秒	 是	 0-59 	  , - * /
+				 2	 分	 是	 0-59     , - * /
+				 3	小时	 是	 0-23	  , - * /
+				 4	 日	 是	 1-31	  , - * ? / L W
+				 5	 月	 是	 1-12 or JAN-DEC	  , - * /
+				 6	 周	 是	 1-7 or SUN-SAT	  , - * ? / L #
+				 7	 年	 否	 empty 或 1970-2099	 , - * / 
+				  每天凌晨1点执行一次：0 0 1 * * ?
+			 -->
+			<!-- 每天凌晨执行一次 -->
+			<value>0 0 23 * * ?</value>
+		</property>
+	</bean>
+	
+	<bean id="financeFileLogInfoServiceTimeTask" class="com.innshine.financeloginfo.service.FinanceFileLogInfoService" />
+	
+	<bean id="financeFileLogInfoServiceJobTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="financeFileLogInfoServiceTimeTask" />
+		<property name="targetMethod" value="doTaskDeleteFileLogInfoAll" />
+	</bean>
+	
+	
+	<!-- 定义触发时间 -->
+	<bean id="financeFileLogInfoServiceDoTime" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="financeFileLogInfoServiceJobTask" />
+		<property name="cronExpression" value="0 0 1 * * ?">
+		</property>
+	</bean>
+	
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+	<bean id="schedulerFactoryBean" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cleanImgAndPPTDoTime" />
+				<ref bean="financeFileLogInfoServiceDoTime" />
+			</list>
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,73 @@
+fieldset legend{
+  padding: 5px 10px;
+  color: #999;
+}
+.white {
+	color: white;
+}
+
+.black {
+	color: black;
+}
+
+.gray {
+	color: gray;
+}
+
+.blue {
+	color: blue;
+}
+.hide-border{
+	border: none;
+}
+.hide{
+	display: none;
+}
+.green {
+	color: green;
+}
+.right{
+	float: right; 
+}
+.textRight{
+	text-align: right;
+}
+
+.red {
+	color: red;
+}
+.bred {
+	background:red;
+}
+.bblue{
+	background:blue;
+}
+.bAsh{
+	background:#f3f3f3;
+}
+.blank {
+	width: 100%;
+	height: 10px;
+	clear: both;
+	overflow: hidden;
+}
+.bold{
+	font-weight: bold;
+}
+.pointer{
+	cursor:pointer;
+}
+label.error{
+	color: red; 
+	z-index: 9999;
+	position:relative;
+	float:left;
+} 
+ 
+ 
+.hide{
+	display: none;
+}
+
+ 
+ 

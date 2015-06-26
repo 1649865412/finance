@@ -1,0 +1,15 @@
+在多表查询中，建议使用sql,在本项目中，sql建议写在
+配置文件中，resources/sql下面，每个模块一个sql文件
+具体sql写法，参照原来存在的Demo
+用法
+在要使用sql查询的地方
+
+	@Autowired
+	private SqlDao sqlDao;
+注入 sqlDao;
+然后在查询的地方：
+List<T> list  = sqlDao.queryListBySql(参数对象paramObject, "sql文件中的key值", 查询的T的class);
+将返回列表对像供其他用
+
+更新
+sqlDao.updateBySql(参数对象paramObject, "sql文件中的key值") 返回int ,即数据的更新结果

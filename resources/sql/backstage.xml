@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+ <comment>Backstage SQL</comment>
+ 
+  <entry key="BACKSTAGE.getUserInfoRep">
+	select rownum vid, u.weixin_sequence,nvl(u.phone,' ') phone,
+		 nvl(to_char(u.created_time,'yyyy-mm-dd hh24:mi:ss'),' ') created_Time_Str,
+		 nvl(to_char(u.cancel_time,'yyyy-mm-dd hh24:mi:ss'),' ') cancel_Time_Str,
+		 nvl(to_char(u.updated_time,'yyyy-mm-dd hh24:mi:ss'),' ') updated_Time_Str 
+		 from user_info u  where 1=1
+             {and u.created_time between to_date(#btime#,'yyyy-mm-dd') }
+             {and to_date(#etime#,'yyyy-mm-dd')}
+			 {and u.cancel_time between to_date(#cbtime#,'yyyy-mm-dd') }
+			 {and to_date(#cetime#,'yyyy-mm-dd')}
+		     {and u.updated_time between to_date(#beftime#,'yyyy-mm-dd') }
+		     {and to_date(#currtime#,'yyyy-mm-dd')}
+			 {and u.weixin_sequence like '%'||#wxseq#||'%' }
+			 {and u.phone like '%'||#phone#||'%'} 
+	</entry> 
+	
+	
+   <entry key="BACKSTAGE.getEverydayRep">
+	    select  to_char(u.created_time,'yyyy-mm-dd') created_time_str,
+		(select count(*) from user_info where cancel_time is null and to_char(created_time,'yyyy-mm-dd') &lt;= to_char(u.created_time-1,'yyyy-mm-dd') ) yesterday_num,
+		(select count(*) from user_info where to_char(u.created_time,'yyyy-mm-dd') = to_char(created_time,'yyyy-mm-dd') ) add_num,
+		(select count(*) from user_info where to_char(u.created_time,'yyyy-mm-dd') = to_char(cancel_time,'yyyy-mm-dd') ) cancle_num
+		from user_info u
+		where to_char(u.created_time,'yyyy-mm-dd') between {#e_b_time#} and {#e_e_time#}
+		group by  to_char(u.created_time,'yyyy-mm-dd'), to_char(u.created_time-1,'yyyy-mm-dd')
+		order by to_char(u.created_time,'yyyy-mm-dd')
+  </entry> 
+   <entry key="BACKSTAGE.getUseRateRep">
+	    select * from (
+		 select to_char(h.created_time,'yyyy-mm-dd') created_time_str ,h.func func,count(*) usecount from user_hit h
+		 where h.created_time between to_date({#b_time#},'yyyy-mm-dd') and to_date({#e_time#},'yyyy-mm-dd')
+		 and h.stype = 1
+		 {  and h.func = #func#} 
+		 group by to_char(h.created_time,'yyyy-mm-dd'),h.func
+		 order by to_char(h.created_time,'yyyy-mm-dd')
+	     ) t where 1 = 1 
+	     { and	t.usecount &gt; #ur_num# }
+  </entry> 
+   <entry key="BACKSTAGE.getUseCaseRep">
+	     select to_char(h.created_time,'yyyy-mm-dd') created_time_str,
+	     h.area area,h.weixin_sequence,h.func func,h.reply reply
+	     from user_hit h 
+		 where h.stype = 1
+		 and h.created_time between to_date({#b_time#},'yyyy-mm-dd') and to_date({#e_time#},'yyyy-mm-dd')
+		{and h.func = #func#}
+	    {and h.weixin_sequence like '%'||#weixin_sequence#||'%'}
+		 order by h.created_time 
+  </entry>	
+  
+  
+  <entry key="BACKSTAGE.getUserMenu">
+  	select t1.id id, t1.menuname, t1.pid pid, checkleaf(t1.id) leaf,
+  	  t1.sort,t1.remark,t1.isvalid
+	  from tb_menu t1, tb_menu_right t2
+	  where t1.id = t2.menu_id
+	   and t1.isvalid = 0
+	   { and t2.dep_id = #depid# }
+	 order by t1.pid,t1.sort
+   
+  </entry>	
+  
+ 
+  <entry key="BACKSTAGE.getProductServ">
+		select t.id,t.pid,t.menuname from tb_menu t left join command_message c 
+		on t.id = c.menuid  where 
+		t.isvalid=0 
+		{ and t.pid = #pid# }
+		and c.flag = 1
+		order by t.sort
+  </entry>	
+
+  <entry key="BACKSTAGE.getProductInfo">
+	select m.title,m.content from command_message m where
+	m.flag =1
+	and m.menuid = (select id from tb_menu t where 1=1
+	{ and
+	t.id=#id#} 
+	{ and
+	t.menuname=#menuname#}
+	
+	)
+	
+  </entry>	
+  
+  <entry  key="BACKSTAGE.loadImgtextInfo">
+	select c.id,
+	c.command,
+	c.msg_type msgType,
+	c.content,
+	c.func_flag funcFlag,
+	c.music_url musicUrl,
+	c.hq_music_url hqMusicUrl,
+	c.title,
+	c.pic_url picUrl,
+	c.url,
+	c.xgroup,
+	c.menuid,
+	c.flag from command_message c where 1=1
+	{ and c.menuid = #menuid# }
+	{ and c.flag = #flag# } 
+  </entry>
+  
+  <entry  key="BACKSTAGE.delCommandByMenuid">
+	 delete from command_message c where c.menuid = { #menuid# }
+  </entry>
+  
+  <entry  key="BACKSTAGE.checkBizName">
+  	 select t.menuname from tb_menu t where t.isvalid = 0
+  	 { and t.menuname = #menuname# } 
+  </entry>
+  
+
+</properties>

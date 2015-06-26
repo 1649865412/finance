@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>index SQL</comment>
+
+
+<!-- 一二级分类数据获取，不加品牌过滤 -->
+ <entry key="Param_ONE_OR_TWO.all">
+ SELECT
+		DATE_FORMAT(a.summary_time,'%Y') year_time,
+		DATE_FORMAT(a.summary_time,'%m') month_time,
+		a.id,
+		a.brand_id,
+		a.finance_costs_type_id,
+		a.finance_costs_categories_id,
+		a.month_summary_amount,
+		a.brand_name,
+		a.finance_costs_type_name,
+		a.finance_costs_categories_name
+		FROM cell_month_summary_info a
+		WHERE a.brand_id IS NOT NULL
+		{ AND a.summary_time &gt;= '#beginTime#' }
+		{ AND a.summary_time &lt;= '#endTime#' }
+		{#itemClass# }		
+	</entry>
+
+
+<!-- 三四级分类数据获取，加品牌过滤 -->	
+	<entry key="Param_THIRD_OR_FOUR.all">
+		SELECT
+		DATE_FORMAT(a.summary_time,'%Y') year_time,
+		DATE_FORMAT(a.summary_time,'%m') month_time,
+		a.id,
+		a.brand_id,
+		a.classify_id,
+		a.classify_info_two_id,
+		a.month_summary_amount,
+		a.brand_name,
+		a.classify_name,
+		a.classify_info_two_name
+		FROM row_month_summary_info a
+		WHERE a.brand_id IS NOT NULL
+		{ AND a.brand_id IN(#brandId#)}
+		{ AND a.summary_time &gt;= '#beginTime#' }
+		{ AND a.summary_time &lt;= '#endTime#' }
+		{#itemClass# }
+	</entry>
+	
+</properties>

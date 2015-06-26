@@ -1,0 +1,277 @@
+package com.base.util.persistence;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
+
+import com.base.SecurityConstants;
+import com.base.dao.sql.ConvertPageQueryFieldsToSQL;
+
+import com.utils.Exceptions;
+import com.utils.ServletUtils;
+
+public class DynamicSpecifications {
+	private static final Logger logger = LoggerFactory.getLogger(DynamicSpecifications.class);
+	
+	// 用于存储每个线程的request请求
+	private static final ThreadLocal<HttpServletRequest> LOCAL_REQUEST = new ThreadLocal<HttpServletRequest>();
+	
+	private static final String SHORT_DATE = "yyyy-MM-dd";
+	private static final String LONG_DATE = "yyyy-MM-dd mm:HH:ss";
+	private static final String TIME = "mm:HH:ss";
+	
+	public static void putRequest(HttpServletRequest request) {
+		LOCAL_REQUEST.set(request);
+	}
+	
+	public static HttpServletRequest getRequest() {
+		return LOCAL_REQUEST.get();
+	}
+	
+	public static void removeRequest() {
+		LOCAL_REQUEST.remove();
+	}
+	
+	public static Collection<SearchFilter> genSearchFilter(ServletRequest request) {
+		Map<String, Object> searchParams = ServletUtils.getParametersStartingWith(request, SecurityConstants.SEARCH_PREFIX);
+		Map<String, SearchFilter> filters = SearchFilter.parse(searchParams);
+		return filters.values();
+	}
+	
+	public static <T> Specification<T> bySearchFilter(ServletRequest request, final Class<T> entityClazz, final Collection<SearchFilter> searchFilters) {
+		return bySearchFilter(request, entityClazz, searchFilters.toArray(new SearchFilter[]{}));
+	}
+	
+	public static <T> Specification<T> bySearchFilter(ServletRequest request, final Class<T> entityClazz, final SearchFilter...searchFilters) {
+		Collection<SearchFilter> filters = genSearchFilter(request);
+		Set<SearchFilter> set = new HashSet<SearchFilter>(filters);
+		for (SearchFilter searchFilter : searchFilters) {
+			set.add(searchFilter);
+		}
+		return bySearchFilter(entityClazz, set);
+	}
+	
+	public static  String appendSql(ServletRequest request, final SearchFilter...searchFilters){
+		Collection<SearchFilter> filters = genSearchFilter(request);
+		Set<SearchFilter> set = new HashSet<SearchFilter>(filters);
+		for (SearchFilter searchFilter : searchFilters) {
+			set.add(searchFilter);
+		} 
+		
+		if (request != null) {
+			// 数据权限中的filter
+			Collection<SearchFilter> nestFilters = 
+					(Collection<SearchFilter>)request.getAttribute(SecurityConstants.NEST_DYNAMIC_SEARCH);
+			if (nestFilters != null && !nestFilters.isEmpty()) {
+				for (SearchFilter searchFilter : nestFilters) {
+					set.add(searchFilter);
+				}
+			}
+		}
+		
+		// 自定义
+		for (SearchFilter searchFilter : searchFilters) {
+			set.add(searchFilter);
+		}
+		
+		/***********************************************
+		 * 遍历，组装SQL
+		 */
+		StringBuilder stringBuilder = new StringBuilder(); 
+		for (SearchFilter filter : set) {
+			// nested path translate, 如Task的名为"user.name"的filedName, 转换为Task.user.name属性
+			//String[] names = StringUtils.split(filter.getFieldName(), ".");
+			String fieldName = ConvertPageQueryFieldsToSQL.fieldNameToColumName(filter.getFieldName());
+			//if(names.length > 1){
+			//	fieldName =  ConvertPageQueryFieldsToSQL.fieldNameToColumName(names[1]);
+			//}
+			stringBuilder.append(" and ");
+			stringBuilder.append(fieldName );   
+			// logic operator
+			switch (filter.getOperator()) { 
+			case EQ: 
+				stringBuilder.append(" = ");
+				stringBuilder.append( "'"+filter.getValue()+"'" ); 
+				break;
+			case LIKE: 
+				stringBuilder.append(" like ");
+				stringBuilder.append( "'%"+filter.getValue()+"%'" ); 
+				break;
+			case GT:
+				stringBuilder.append(" > ");
+				stringBuilder.append( filter.getValue() );  
+				break;
+			case LT:
+				stringBuilder.append(" < ");
+				stringBuilder.append( filter.getValue() );  
+				break;
+			case GTE:
+				stringBuilder.append(" >= ");
+				stringBuilder.append( filter.getValue() );  
+				break;
+			case LTE:
+				stringBuilder.append(" <= ");
+				stringBuilder.append( filter.getValue() );  
+				break;
+			case IN:
+				stringBuilder.append(" in ");
+				stringBuilder.append("("+filter.getValue()+")" );  
+				break;
+			}
+		}
+		
+		return stringBuilder.toString();
+		
+	}
+	
+	
+	
+	
+	//忠：用于获取前台传过来的查询条件(历史的)
+	public static <T>Set<SearchFilter> getSearchFilterList(ServletRequest request, final Class<T> class1, final SearchFilter...searchFilters){
+		Collection<SearchFilter> filters = genSearchFilter(request);
+		Set<SearchFilter> set = new HashSet<SearchFilter>(filters);
+		for (SearchFilter searchFilter : searchFilters) {
+			set.add(searchFilter);
+		}
+		return set;
+	}
+	
+
+	 
+	//忠：用于获取前台传过来的查询条件
+	public static <T>Set<SearchFilter> getSearchFilterList(ServletRequest request, final SearchFilter...searchFilters){
+		Collection<SearchFilter> filters = genSearchFilter(request);
+		Set<SearchFilter> set = new HashSet<SearchFilter>(filters);
+		for (SearchFilter searchFilter : searchFilters) {
+			set.add(searchFilter);
+		}
+		return set;
+	}
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	public static <T> Specification<T> bySearchFilter(final Class<T> entityClazz, final Collection<SearchFilter> searchFilters) {
+		final Set<SearchFilter> filterSet = new HashSet<SearchFilter>();
+		ServletRequest request = getRequest();
+		if (request != null) {
+			// 数据权限中的filter
+			Collection<SearchFilter> nestFilters = 
+					(Collection<SearchFilter>)request.getAttribute(SecurityConstants.NEST_DYNAMIC_SEARCH);
+			if (nestFilters != null && !nestFilters.isEmpty()) {
+				for (SearchFilter searchFilter : nestFilters) {
+					filterSet.add(searchFilter);
+				}
+			}
+		}
+		
+		// 自定义
+		for (SearchFilter searchFilter : searchFilters) {
+			filterSet.add(searchFilter);
+		}
+		
+		return new Specification<T>() {
+			@SuppressWarnings({ "rawtypes"})
+			@Override
+			public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
+				if (filterSet != null && !filterSet.isEmpty()) {
+					List<Predicate> predicates = new ArrayList<Predicate>();
+					for (SearchFilter filter : filterSet) {
+						// nested path translate, 如Task的名为"user.name"的filedName, 转换为Task.user.name属性
+						String[] names = StringUtils.split(filter.getFieldName(), ".");
+						Path expression = root.get(names[0]);
+						for (int i = 1; i < names.length; i++) {
+							expression = expression.get(names[i]);
+						}
+
+						// 自动进行enum和date的转换。
+						Class clazz = expression.getJavaType();
+						if (Date.class.isAssignableFrom(clazz) && !filter.getValue().getClass().equals(clazz)) {
+							filter.setValue(convert2Date((String)filter.getValue()));
+						} else if (Enum.class.isAssignableFrom(clazz) && !filter.getValue().getClass().equals(clazz)) {
+							filter.setValue(convert2Enum(clazz, (String)filter.getValue()));
+						}
+						
+						// logic operator
+						switch (filter.getOperator()) {
+						case EQ:
+							predicates.add(builder.equal(expression, filter.getValue()));
+							break;
+						case LIKE:
+							predicates.add(builder.like(expression, "%" + filter.getValue() + "%"));
+							break;
+						case GT:
+							predicates.add(builder.greaterThan(expression, (Comparable) filter.getValue()));
+							break;
+						case LT:
+							predicates.add(builder.lessThan(expression, (Comparable) filter.getValue()));
+							break;
+						case GTE:
+							predicates.add(builder.greaterThanOrEqualTo(expression, (Comparable) filter.getValue()));
+							break;
+						case LTE:
+							predicates.add(builder.lessThanOrEqualTo(expression, (Comparable) filter.getValue()));
+							break;
+						case IN:
+							predicates.add(builder.and(expression.in((Object[])filter.getValue())));
+							break;
+						}
+					}
+
+					// 将所有条件用 and 联合起来
+					if (predicates.size() > 0) {
+						return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+					}
+				}
+
+				return builder.conjunction();
+			}
+		};
+	}
+	
+	private static Date convert2Date(String dateString) {
+		SimpleDateFormat sFormat = new SimpleDateFormat(SHORT_DATE);
+		try {
+			return sFormat.parse(dateString);
+		} catch (ParseException e) {
+			try {
+				return sFormat.parse(LONG_DATE);
+			} catch (ParseException e1) {
+				try {
+					return sFormat.parse(TIME);
+				} catch (ParseException e2) {
+					logger.error("Convert time is error! The dateString is " + dateString + "." + Exceptions.getStackTraceAsString(e2));
+				}
+			}
+		}
+
+		return null;
+	}
+		
+	
+	private static <E extends Enum<E>> E convert2Enum(Class<E> enumClass, String enumString) {
+		return EnumUtils.getEnum(enumClass, enumString);
+	}
+}

@@ -1,0 +1,18 @@
+
+.fieldset_left {
+	width: 300px;
+	float: left;
+	height: 700px;
+	overflow: auto;
+}
+
+.fieldset_right {
+	width: 700px;
+	height: 40px;
+	margin-left: 330px;
+}
+
+.fieldset_right_img {
+	height: 900px;
+	width: 750px
+}

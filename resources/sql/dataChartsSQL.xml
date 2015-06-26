@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>index SQL</comment>
+	<entry key="index.querySummary">
+		SELECT
+		COUNT(productinfo.id) AS product_num,
+		(SELECT
+		IFNULL(COUNT(submit_report.id),0)
+		FROM submit_report
+		WHERE submit_report.organization_id = productinfo.organization_id) AS
+		submit_report_num,
+		(SELECT
+		IFNULL(COUNT(platforminfo.id),0)
+		FROM platforminfo
+		WHERE platforminfo.organization_id = productinfo.organization_id) AS
+		platform_num,
+		(SELECT
+		IFNULL(COUNT(suitinfo.id),0)
+		FROM suitinfo
+		WHERE suitinfo.organization_id = productinfo.organization_id) AS
+		suit_num,
+		(SELECT
+		IFNULL(SUM(IFNULL(salesdetails.day_sales,0)),0)
+		FROM salesdetails
+		WHERE salesdetails.organization_id = productinfo.organization_id) AS sell_num,
+		(SELECT
+		CAST(IFNULL(SUM(IFNULL(salesdetails.day_sales,0)*salesdetails.current_price),0) AS CHAR(20))
+		FROM salesdetails
+		WHERE salesdetails.organization_id = productinfo.organization_id) AS
+		sell_value,
+		productinfo.organization_id,
+		base_organization.name AS organization_name
+		FROM productinfo
+		LEFT OUTER JOIN base_organization
+		ON productinfo.organization_id = base_organization.id
+		WHERE 1 = 1
+		AND productinfo.organization_id IS NOT NULL
+		GROUP BY productinfo.organization_id,base_organization.name	
+	</entry>
+	
+	 
+
+</properties>
